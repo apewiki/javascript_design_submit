@@ -5,14 +5,16 @@ $(function() {
 	var bounds;
 	var errMap;
 	var errMapDetail="";
+	var infowindow;
+	var prevMarker;
 
 	const YELP_KEY = 'bv-f4fN8pfiBGodIp824VA';
     const YELP_KEY_SECRET = 'Lmq4G67yJ8avCfy6LqCaxFiEm1E';
     const YELP_TOKEN = '-rBzvZN5TaldkdYTsM_vv4SDm8lvOVZM';
     const YELP_TOKEN_SECRET = 'x9rkfFF6cKAnNJgz5oR5GsH_pew';
     const MYLOCATION = 'New York, NY';
-    const NYLAT=40.733;
-    const NYLNG=-73.9797;
+    const NYLAT = 40.733;
+    const NYLNG = -73.9797;
     const YELP_URL = "https://api.yelp.com/v2/search";
 
 
@@ -20,7 +22,7 @@ $(function() {
 	var Place = function(name, category,selected, address, neighborhoods, url, rating, rating_img_url, snippet) {
 		this.name = ko.observable(name);
 		this.category = ko.observable(category);
-		this.selected= ko.observable(selected);
+		this.selected = ko.observable(selected);
 		this.address = ko.observable(address);
 		this.neighborhoods = ko.observable(neighborhoods);
 		this.url = ko.observable(url);
@@ -42,6 +44,8 @@ $(function() {
 					disableDefaultUI: true
 				});
 				bounds = new google.maps.LatLngBounds();
+				infowindow = new google.maps.InfoWindow();
+				prevMarker = null;
 				return true;
 			} else {
 				//If google api fails to load, exit and print the error message on screen
@@ -62,14 +66,14 @@ $(function() {
 				if (search_r != -1) {
 					return markers[i].marker;
 				}
-			};
+			}
 			return null;
 		},
 
 		//Given name, category, neighbood(location), mark it on google map.
 		pinPoster : function(name, category, location, delay, initLoad) {
 			if (map) {
-				var marker = initLoad? null:MapView.findMarker(name+":"+location);
+				var marker = initLoad? null : MapView.findMarker(name + ":" + location);
 				if (marker) {
 					marker.setMap(map);
 					MapView.setBounds(marker);
@@ -89,7 +93,7 @@ $(function() {
 					setTimeout(function() {
 						service.textSearch(request, function(results, status){
 							if (status == google.maps.places.PlacesServiceStatus.OK) {
-								MapView.createMarker(name+":"+location, results[0]);
+								MapView.createMarker(name + ":" + location, results[0]);
 							} else if (status == google.maps.place.PlacesServiceStatus.OVER_QUERY_LIMIT) {
 								alert("Sorry, Google query limit is reached. Wait couple seconds and click your selection again!");
 							} else {
@@ -101,7 +105,7 @@ $(function() {
 				}
 
 			} else {
-				errMapDetail="Google Map is not available.";
+				errMapDetail = "Google Map is not available.";
 				alert("Sorry, failed to open Google map.");
 			}
 		},
@@ -128,11 +132,17 @@ $(function() {
 				title: placeData.name + ", " + placeData.formatted_address
 			});
 
-			markers.push({"name": name, "marker":marker});
+			markers.push({"name": name, "marker": marker});
 			MapView.setBounds(marker);
-			var infowindow = new google.maps.InfoWindow();
+			//var infowindow = new google.maps.InfoWindow();
 
 			google.maps.event.addListener(marker, 'mouseup', function(e) {
+				//Stop previous clicked marker from bouncing
+				if (prevMarker && prevMarker !== marker) {
+					if (prevMarker.getAnimation() !== null) {
+						prevMarker.setAnimation(null);
+					}
+				}
 				var service = new google.maps.places.PlacesService(map);
 				var request = {
 					placeId: placeData.place_id
@@ -144,7 +154,7 @@ $(function() {
 				function callback(place, status) {
 					var infoContent = '';
 					if (status == google.maps.places.PlacesServiceStatus.OK) {
-						var web_address = place.website? "<a href="+place.website+" target='_blank'>"+place.name+"</a>" : place.name;
+						var web_address = place.website? "<a href=" + place.website + " target='_blank'>" + place.name + "</a>" : place.name;
 						infoContent = web_address;
 						infoContent += place.formatted_phone_number? " Tel: " + place.formatted_phone_number : "not available";
 					} else {
@@ -154,12 +164,14 @@ $(function() {
 				}
 				infowindow.open(map, marker);
 				marker.setAnimation(google.maps.Animation.BOUNCE);
+				prevMarker = marker;
+
 				e.stop();
 			});
 
 			//Stop animation if infowindow is closed
 			google.maps.event.addListener(infowindow,'closeclick', function() {
-				if (marker.getAnimation() != null) {
+				if (marker.getAnimation() !== null) {
 					marker.setAnimation(null);
 				}
 			});
@@ -169,13 +181,13 @@ $(function() {
 		clearMarkers: function() {
 			markers.forEach(function(m) {
 				m.marker.setMap(null);
-			})
+			});
 			bounds = new google.maps.LatLngBounds();
 		},
 
 		//Set the boundary of the map when a new marker is added
 		setBounds: function(marker) {
-			bounds.extend(new google.maps.LatLng(marker.getPosition().lat(),marker.getPosition().lng()));
+			bounds.extend(new google.maps.LatLng(marker.getPosition().lat(), marker.getPosition().lng()));
 			map.fitBounds(bounds);
 			map.setCenter(bounds.getCenter());
 		},
@@ -228,7 +240,7 @@ $(function() {
 		        location: MYLOCATION,
 		        lcc: 'NYLAT, NYLLG',
 		        //radius_filter: '10000',
-		        term: 'popular '+ type,
+		        term: 'popular ' + type,
 		        //category_filter: 'restaurants',
 		        limit: 10,
 		        sort: 2
@@ -256,14 +268,15 @@ $(function() {
 		        dataType: "jsonp",
 		        jsonp: "callback",
 		        success: function( response ) {
-		            for (var i = 0; i<response.businesses.length; i++) {
-		                var bizname = response.businesses[i].name;
-		                var bizurl = response.businesses[i].url;
-		                var bizRating = response.businesses[i].rating;
-		                var rating_img_url = response.businesses[i].rating_img_url_small;
-		                var bizSnippet = response.businesses[i].snippet_text;
-		                var bizAddress = response.businesses[i].location.display_address;
-		                var bizNeighborhoods = response.businesses[i].location.neighborhoods;
+		            for (var i = 0; i < response.businesses.length; i++) {
+		            	var biz = response.businesses[i];
+		                var bizname = biz.name;
+		                var bizurl = biz.url;
+		                var bizRating = biz.rating;
+		                var rating_img_url = biz.rating_img_url_small;
+		                var bizSnippet = biz.snippet_text;
+		                var bizAddress = biz.location.display_address;
+		                var bizNeighborhoods = biz.location.neighborhoods;
 		               // Create a place based on each record received and push it into locations array
 		               	self.locations.push(new Place(bizname, type, selected, bizAddress, bizNeighborhoods, bizurl, bizRating,
 		               		rating_img_url, bizSnippet));
@@ -281,8 +294,7 @@ $(function() {
 		        }
 
 		    });
-
-		};
+		}
 
 		//Set up google filters
 		self.getGoogleTypes = function(type) {
@@ -294,7 +306,7 @@ $(function() {
 				retVal.push('food');
 			}
 			return retVal;
-		}
+		};
 
 		//This function is called when a category element is clicked.
 		//Subsequently business data relevant to that category is shown as list as well as markers on the map
@@ -310,7 +322,7 @@ $(function() {
 					self.type('cafe, coffee shop');
 				} else if (this.match(/Shop/))
 				{
-					self.type('shopping, shopping mall')
+					self.type('shopping, shopping mall');
 				} else if (this.match(/Ice Cream/))
 				{
 					self.type('ice cream parlor, candy shop');
@@ -348,7 +360,7 @@ $(function() {
 			var re = new RegExp(self.search_term(), "i");
 			MapView.clearMarkers();
 
-			if (self.search_term().length>0) {
+			if (self.search_term().length > 0) {
 
 				self.locations().forEach(function(loc) {
 					//The search is conducted on selected category only
@@ -358,7 +370,7 @@ $(function() {
 							loc.selected(false);
 						} else {
 							loc.selected(true);
-							MapView.pinPoster(loc.name(), self.getGoogleTypes(loc.category()), loc.neighborhoods(),0, false);
+							MapView.pinPoster(loc.name(), self.getGoogleTypes(loc.category()), loc.neighborhoods(), 0, false);
 						}
 					}
 				});
@@ -399,9 +411,9 @@ $(function() {
 			self.searchPlace();
 
 			$('#dialog').empty();
-			$('#dialog').append("<a href="+this.url()+" target='_blank' class='detail-header'>"+this.name()+"</a>"
-				+"<span class='detail-header'> Yelp Rating:"+this.rating()+"</span>");
-			$('#dialog').append("<p class='detail-body'> <span>From Yelp Review: </span>"+this.snippet()+"</p>");
+			$('#dialog').append("<a href=" + this.url() + " target='_blank' class='detail-header'>" + this.name() +
+				"</a><span class='detail-header'> Yelp Rating:" + this.rating() + "</span>");
+			$('#dialog').append("<p class='detail-body'> <span>From Yelp Review: </span>" + this.snippet() + "</p>");
 
 			$("#dialog").dialog("open");
 			$('#dialog').dialog("moveToTop");
@@ -427,7 +439,7 @@ $(function() {
 		//Select the text in search box when user clicks inside box for easy deletion
 		self.select = function() {
 			$('#search_term').select();
-		}
+		};
 	};
 
 	//Start the app when google map is initialized successfully
@@ -436,8 +448,6 @@ $(function() {
 		ko.applyBindings(viewModel);
 		window.addEventListener("resize", function() {
 			map.fitBounds(bounds);
-		})
+		});
 	}
 });
-
-
