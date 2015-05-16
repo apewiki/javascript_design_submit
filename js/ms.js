@@ -1,22 +1,22 @@
 $(function() {
+	"use strict";
 
 	var map;
-	var markers=[];
+	var markers = [];
 	var bounds;
 	var errMap;
-	var errMapDetail="";
+	var errMapDetail = "";
 	var infowindow;
 	var prevMarker;
 
-	const YELP_KEY = 'bv-f4fN8pfiBGodIp824VA';
-    const YELP_KEY_SECRET = 'Lmq4G67yJ8avCfy6LqCaxFiEm1E';
-    const YELP_TOKEN = '-rBzvZN5TaldkdYTsM_vv4SDm8lvOVZM';
-    const YELP_TOKEN_SECRET = 'x9rkfFF6cKAnNJgz5oR5GsH_pew';
-    const MYLOCATION = 'New York, NY';
-    const NYLAT = 40.733;
-    const NYLNG = -73.9797;
-    const YELP_URL = "https://api.yelp.com/v2/search";
-
+	var YELP_KEY = 'bv-f4fN8pfiBGodIp824VA';
+    var YELP_KEY_SECRET = 'Lmq4G67yJ8avCfy6LqCaxFiEm1E';
+    var YELP_TOKEN = '-rBzvZN5TaldkdYTsM_vv4SDm8lvOVZM';
+    var YELP_TOKEN_SECRET = 'x9rkfFF6cKAnNJgz5oR5GsH_pew';
+    var MYLOCATION = 'New York, NY';
+    var NYLAT = 40.733;
+    var NYLNG = -73.9797;
+    var YELP_URL = "https://api.yelp.com/v2/search";
 
     //Place object definition
 	var Place = function(name, category,selected, address, neighborhoods, url, rating, rating_img_url, snippet) {
@@ -80,30 +80,38 @@ $(function() {
 				} else {
 					//Use google place library service to search for place data (lat, lng, website) of the business
 					var service = new google.maps.places.PlacesService(map);
-					var queryString = location && location.length? name + ' near ' + location : name + ' in New York';
+					if (service) {
+						var queryString = location && location.length? name + ' near ' + location : name + ' in New York';
 
-
-					var request = {
-						location: map.getCenter(),
-						radius: '5000',
-						query: name + ' in New York',
-						types: category
-					};
-					//In order to get around OVER_QUERY_LIMIT problem, increase delay on each search by 300 ms
-					setTimeout(function() {
-						service.textSearch(request, function(results, status){
-							if (status == google.maps.places.PlacesServiceStatus.OK) {
-								MapView.createMarker(name + ":" + location, results[0]);
-							} else if (status == google.maps.place.PlacesServiceStatus.OVER_QUERY_LIMIT) {
-								alert("Sorry, Google query limit is reached. Wait couple seconds and click your selection again!");
-							} else {
-								errMapDetail += status + "; ";
-								alert("An error occurred on google query: " + errMapDetail);
-							}
-						});
-					}, 300*delay);
+						var request = {
+							location: map.getCenter(),
+							radius: '5000',
+							query: name + ' in New York',
+							types: category
+						};
+						var googleTimeout = setTimeout(function() {
+							var err = "Google search timed out. Plese check internet connnection or Google website.";
+							alert(err);
+							
+						}, 10000);
+						//In order to get around OVER_QUERY_LIMIT problem, increase delay on each search by 300 ms
+						setTimeout(function() {
+							service.textSearch(request, function(results, status){
+								if (status == google.maps.places.PlacesServiceStatus.OK) {
+									MapView.createMarker(name + ":" + location, results[0]);
+								} else if (status == google.maps.place.PlacesServiceStatus.OVER_QUERY_LIMIT) {
+									alert("Sorry, Google query limit is reached. Wait couple seconds and click your selection again!");
+								} else {
+									errMapDetail += status + "; ";
+									alert("An error occurred on google query: " + errMapDetail);
+								}
+								clearTimeout(googleTimeout);
+							});
+						}, 300*delay);
+					} else {
+						errMapDetail = "Google Service is not available";
+					}
 				}
-
 			} else {
 				errMapDetail = "Google Map is not available.";
 				alert("Sorry, failed to open Google map.");
@@ -292,7 +300,6 @@ $(function() {
 		        	//Show error message if request to Yelp failed
 		        	self.errMsg ("Sorry, Yelp search failed.");
 		        }
-
 		    });
 		}
 
@@ -328,7 +335,6 @@ $(function() {
 					self.type('ice cream parlor, candy shop');
 					self.google_types.push('food');
 				}
-
 			//Clear markers of previously selected category
 			MapView.clearMarkers();
 			//Show markers of currently selected category
@@ -404,6 +410,7 @@ $(function() {
 	      	of: "#selected-list"
 	      }
 	    });
+
 
 		//Use jQuery UI to show pop up box with detailed info when a user click the name protion of a list item.
 		self.showDetail = function() {
