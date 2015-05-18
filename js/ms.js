@@ -4,7 +4,6 @@ $(function() {
 	var map;
 	var markers = [];
 	var bounds;
-	var errMap;
 	var errMapDetail = "";
 	var infowindow;
 	var prevMarker;
@@ -16,7 +15,7 @@ $(function() {
     var MYLOCATION = 'New York, NY';
     var NYLAT = 40.733;
     var NYLNG = -73.9797;
-    var YELP_URL = "https://api.yelp.com/v2/search";
+    var YELP_URL = 'https://api.yelp.com/v2/search';
 
     //Place object definition
 	var Place = function(name, category,selected, address, neighborhoods, url, rating, rating_img_url, snippet) {
@@ -49,12 +48,26 @@ $(function() {
 				return true;
 			} else {
 				//If google api fails to load, exit and print the error message on screen
-				$(".nav").after("<p> Google Map is not available, please check internet connection.</p>");
+				$('.nav').after('<p> Google Map is not available, please check internet connection.</p>');
 				$('main').hide();
 				return false;
 			}
 
 
+		},
+
+		showMapErr: function(err) {
+			console.log("Show map error is called!");
+			$('#mapErr').html('Some error occurred on Google search. Please check internet connection. <a href="#">Click for details</a>');
+			$("#mapErrDetails").html(err);
+			$("#mapErr a").click(function() {
+				$('#mapErrDetails').toggle();
+			});
+		},
+
+		clearMapErr: function() {
+			$('#mapErr').html('');
+			$('mapErrDetails').html('');
 		},
 
 		//Find the marker if the location was found and cached
@@ -90,10 +103,11 @@ $(function() {
 							types: category
 						};
 						var googleTimeout = setTimeout(function() {
-							var err = "Google search timed out. Plese check internet connnection or Google website.";
-							alert(err);
-							
-						}, 10000);
+							errMapDetail += 'Google search for ';
+							errMapDetail += name;
+							errMapDetail += ' timed out. ';
+							MapView.showMapErr(errMapDetail);
+						}, 8000);
 						//In order to get around OVER_QUERY_LIMIT problem, increase delay on each search by 300 ms
 						setTimeout(function() {
 							service.textSearch(request, function(results, status){
@@ -108,9 +122,7 @@ $(function() {
 								clearTimeout(googleTimeout);
 							});
 						}, 300*delay);
-					} else {
-						errMapDetail = "Google Service is not available";
-					}
+					} 
 				}
 			} else {
 				errMapDetail = "Google Map is not available.";
@@ -140,49 +152,56 @@ $(function() {
 				title: placeData.name + ", " + placeData.formatted_address
 			});
 
-			markers.push({"name": name, "marker": marker});
-			MapView.setBounds(marker);
-			//var infowindow = new google.maps.InfoWindow();
+			if (marker) {
+				markers.push({"name": name, "marker": marker});
+				MapView.setBounds(marker);
+				//var infowindow = new google.maps.InfoWindow();
 
-			google.maps.event.addListener(marker, 'mouseup', function(e) {
-				//Stop previous clicked marker from bouncing
-				if (prevMarker && prevMarker !== marker) {
-					if (prevMarker.getAnimation() !== null) {
-						prevMarker.setAnimation(null);
+				google.maps.event.addListener(marker, 'mouseup', function(e) {
+					//Stop previous clicked marker from bouncing
+					if (prevMarker && prevMarker !== marker) {
+						if (prevMarker.getAnimation() !== null) {
+							prevMarker.setAnimation(null);
+						}
 					}
-				}
-				var service = new google.maps.places.PlacesService(map);
-				var request = {
-					placeId: placeData.place_id
-				};
+					var service = new google.maps.places.PlacesService(map);
+					var request = {
+						placeId: placeData.place_id
+					};
 
-				//Use place_id to obtain the website url of the business
-				service.getDetails(request, callback);
+					if (service) {
+						console.log("in detailed service!");
+						var googleDetailTimeout = setTimeout(function() {
+							alert('Google detailed search for ' + name + ' timedout. ');
+						}, 5000);
+						//Use place_id to obtain the website url of the business
+						service.getDetails(request, function(place, status) {
+							var infoContent = '';
+							if (status == google.maps.places.PlacesServiceStatus.OK) {
+								var web_address = place.website? "<a href=" + place.website + " target='_blank'>" + place.name + "</a>" : place.name;
+								infoContent = web_address;
+								infoContent += place.formatted_phone_number? " Tel: " + place.formatted_phone_number : "not available";
+							} else {
+								infoContent = placeData.name;
+							}
+							infowindow.setContent(infoContent);
+							clearTimeout(googleDetailTimeout);
+						});
+						
+						infowindow.open(map, marker);
+						marker.setAnimation(google.maps.Animation.BOUNCE);
+						prevMarker = marker;
+					}				
+					e.stop();
+				});
 
-				function callback(place, status) {
-					var infoContent = '';
-					if (status == google.maps.places.PlacesServiceStatus.OK) {
-						var web_address = place.website? "<a href=" + place.website + " target='_blank'>" + place.name + "</a>" : place.name;
-						infoContent = web_address;
-						infoContent += place.formatted_phone_number? " Tel: " + place.formatted_phone_number : "not available";
-					} else {
-						infoContent = placeData.name;
+				//Stop animation if infowindow is closed
+				google.maps.event.addListener(infowindow,'closeclick', function() {
+					if (marker.getAnimation() !== null) {
+						marker.setAnimation(null);
 					}
-					infowindow.setContent(infoContent);
-				}
-				infowindow.open(map, marker);
-				marker.setAnimation(google.maps.Animation.BOUNCE);
-				prevMarker = marker;
-
-				e.stop();
-			});
-
-			//Stop animation if infowindow is closed
-			google.maps.event.addListener(infowindow,'closeclick', function() {
-				if (marker.getAnimation() !== null) {
-					marker.setAnimation(null);
-				}
-			});
+				});
+			}
 		},
 
 		//Erase all markers from the map
@@ -195,9 +214,11 @@ $(function() {
 
 		//Set the boundary of the map when a new marker is added
 		setBounds: function(marker) {
-			bounds.extend(new google.maps.LatLng(marker.getPosition().lat(), marker.getPosition().lng()));
-			map.fitBounds(bounds);
-			map.setCenter(bounds.getCenter());
+			if (marker && bounds) {
+				bounds.extend(new google.maps.LatLng(marker.getPosition().lat(), marker.getPosition().lng()));
+				map.fitBounds(bounds);
+				map.setCenter(bounds.getCenter());
+			}
 		},
 
 		//Delete all markers
@@ -343,9 +364,9 @@ $(function() {
 
 		//This function is called by to put all markers of a selected category on the map
 		self.reset = function() {
-			errMap="";
 			errMapDetail="";
 			self.errMsg("");
+			MapView.clearMapErr();
 			var i=0;
 			self.locations().forEach(function(loc) {
 				loc.selected(loc.category() === self.type());
@@ -360,8 +381,8 @@ $(function() {
 		 Based on the text in search box, the list will be filtered using regular expression matching
 		 The markers of matched business will be shown and all other markers will be cleared from the map*/
 		self.searchPlace = function () {
-			errMap="";
 			errMapDetail="";
+			MapView.clearMapErr();
 
 			var re = new RegExp(self.search_term(), "i");
 			MapView.clearMarkers();
