@@ -4,7 +4,7 @@ $(function() {
 	var map;
 	var markers = [];
 	var bounds;
-	var errMapDetail = "";
+	var errMapDetail = '';
 	var infowindow;
 	var prevMarker;
 
@@ -59,8 +59,8 @@ $(function() {
 		showMapErr: function(err) {
 			console.log("Show map error is called!");
 			$('#mapErr').html('Some error occurred on Google search. Please check internet connection. <a href="#">Click for details</a>');
-			$("#mapErrDetails").html(err);
-			$("#mapErr a").click(function() {
+			$('#mapErrDetails').html(err);
+			$('#mapErr a').click(function() {
 				$('#mapErrDetails').toggle();
 			});
 		},
@@ -112,21 +112,21 @@ $(function() {
 						setTimeout(function() {
 							service.textSearch(request, function(results, status){
 								if (status == google.maps.places.PlacesServiceStatus.OK) {
-									MapView.createMarker(name + ":" + location, results[0]);
+									MapView.createMarker(name + ':' + location, results[0]);
 								} else if (status == google.maps.place.PlacesServiceStatus.OVER_QUERY_LIMIT) {
-									alert("Sorry, Google query limit is reached. Wait couple seconds and click your selection again!");
+									alert('Sorry, Google query limit is reached. Wait couple seconds and click your selection again!');
 								} else {
-									errMapDetail += status + "; ";
-									alert("An error occurred on google query: " + errMapDetail);
+									errMapDetail += status + '; ';
+									alert('An error occurred on google query: ' + errMapDetail);
 								}
 								clearTimeout(googleTimeout);
 							});
 						}, 300*delay);
-					} 
+					}
 				}
 			} else {
-				errMapDetail = "Google Map is not available.";
-				alert("Sorry, failed to open Google map.");
+				errMapDetail = 'Google Map is not available.';
+				alert('Sorry, failed to open Google map.');
 			}
 		},
 
@@ -149,11 +149,11 @@ $(function() {
 				map: map,
 				icon: image,
 				animation: google.maps.Animation.DROP,
-				title: placeData.name + ", " + placeData.formatted_address
+				title: placeData.name + ', ' + placeData.formatted_address
 			});
 
 			if (marker) {
-				markers.push({"name": name, "marker": marker});
+				markers.push({'name': name, 'marker': marker});
 				MapView.setBounds(marker);
 				//var infowindow = new google.maps.InfoWindow();
 
@@ -170,7 +170,6 @@ $(function() {
 					};
 
 					if (service) {
-						console.log("in detailed service!");
 						var googleDetailTimeout = setTimeout(function() {
 							alert('Google detailed search for ' + name + ' timedout. ');
 						}, 5000);
@@ -178,20 +177,20 @@ $(function() {
 						service.getDetails(request, function(place, status) {
 							var infoContent = '';
 							if (status == google.maps.places.PlacesServiceStatus.OK) {
-								var web_address = place.website? "<a href=" + place.website + " target='_blank'>" + place.name + "</a>" : place.name;
+								var web_address = place.website? '<a href=' + place.website + ' target="_blank">' + place.name + '</a>' : place.name;
 								infoContent = web_address;
-								infoContent += place.formatted_phone_number? " Tel: " + place.formatted_phone_number : "not available";
+								infoContent += place.formatted_phone_number? ' Tel: ' + place.formatted_phone_number : 'not available';
 							} else {
 								infoContent = placeData.name;
 							}
 							infowindow.setContent(infoContent);
 							clearTimeout(googleDetailTimeout);
 						});
-						
+
 						infowindow.open(map, marker);
 						marker.setAnimation(google.maps.Animation.BOUNCE);
 						prevMarker = marker;
-					}				
+					}
 					e.stop();
 				});
 
@@ -231,17 +230,17 @@ $(function() {
 	//View Model
 	var ViewModel = function() {
 		var self = this;
-		self.errMsg = ko.observable("");
-		self.search_term = ko.observable("");
+		self.errMsg = ko.observable('');
+		self.search_term = ko.observable('');
 		self.locations = ko.observableArray([]);
-		self.type = ko.observable("restaurant");
+		self.type = ko.observable('restaurant');
 		self.google_types = ['restaurant'];
 		self.infoTypes = ko.observableArray([]);
 		self.infoTypes.push(ko.observable('Restaurant'));
 		self.infoTypes.push(ko.observable('Cafe'));
 		self.infoTypes.push(ko.observable('Ice Cream'));
 		self.infoTypes.push(ko.observable('Shop'));
-		self.search_term = ko.observable("");
+		self.search_term = ko.observable('');
 
 		loadAll();
 
@@ -286,7 +285,7 @@ $(function() {
 
 		    //Set time out if query is not set up right or yelp is not available
 		    var yelpRequestTimeout = setTimeout(function() {
-		    	self.errMsg("Sorry, request to yelp timed out. Please check your internet connection.");
+		    	self.errMsg('Sorry, request to yelp timed out. Please check your internet connection.');
 		    }, 8000);
 
 		    //jQuery ajax call to Yelp API
@@ -294,8 +293,8 @@ $(function() {
 		        url: YELP_URL,
 		        data: parameters,
 		        cache: true,
-		        dataType: "jsonp",
-		        jsonp: "callback",
+		        dataType: 'jsonp',
+		        jsonp: 'callback',
 		        success: function( response ) {
 		            for (var i = 0; i < response.businesses.length; i++) {
 		            	var biz = response.businesses[i];
@@ -319,7 +318,7 @@ $(function() {
 		        },
 		        error: function (response ) {
 		        	//Show error message if request to Yelp failed
-		        	self.errMsg ("Sorry, Yelp search failed.");
+		        	self.errMsg ('Sorry, Yelp search failed.');
 		        }
 		    });
 		}
@@ -364,8 +363,8 @@ $(function() {
 
 		//This function is called by to put all markers of a selected category on the map
 		self.reset = function() {
-			errMapDetail="";
-			self.errMsg("");
+			errMapDetail='';
+			self.errMsg('');
 			MapView.clearMapErr();
 			var i=0;
 			self.locations().forEach(function(loc) {
@@ -381,10 +380,10 @@ $(function() {
 		 Based on the text in search box, the list will be filtered using regular expression matching
 		 The markers of matched business will be shown and all other markers will be cleared from the map*/
 		self.searchPlace = function () {
-			errMapDetail="";
+			errMapDetail='';
 			MapView.clearMapErr();
 
-			var re = new RegExp(self.search_term(), "i");
+			var re = new RegExp(self.search_term(), 'i');
 			MapView.clearMarkers();
 
 			if (self.search_term().length > 0) {
@@ -415,20 +414,20 @@ $(function() {
 
 		/*Use jQuery UI to show pop up box with detailed info when a list item is clicked.
 		  jQuery UI dialog box set up */
-		$( "#dialog" ).dialog({
+		$( '#dialog' ).dialog({
 	      autoOpen: false,
 	      show: {
-	        effect: "blind",
+	        effect: 'blind',
 	        duration: 1000
 	      },
 	      hide: {
-	        effect: "explode",
+	        effect: 'explode',
 	        duration: 1000
 	      },
 	      position: {
-	      	my: "center top",
-	      	at: "right center+50%",
-	      	of: "#selected-list"
+	      	my: 'center top',
+	      	at: 'right center+50%',
+	      	of: '#selected-list'
 	      }
 	    });
 
@@ -439,29 +438,29 @@ $(function() {
 			self.searchPlace();
 
 			$('#dialog').empty();
-			$('#dialog').append("<a href=" + this.url() + " target='_blank' class='detail-header'>" + this.name() +
-				"</a><span class='detail-header'> Yelp Rating:" + this.rating() + "</span>");
-			$('#dialog').append("<p class='detail-body'> <span>From Yelp Review: </span>" + this.snippet() + "</p>");
+			$('#dialog').append('<a href=' + this.url() + ' target="_blank" class="detail-header">' + this.name() +
+				'</a><span class="detail-header"> Yelp Rating:' + this.rating() + '</span>');
+			$('#dialog').append('<p class="detail-body"> <span>From Yelp Review: </span>' + this.snippet() + '</p>');
 
-			$("#dialog").dialog("open");
-			$('#dialog').dialog("moveToTop");
+			$('#dialog').dialog('open');
+			$('#dialog').dialog('moveToTop');
 		};
 
 		//User can toggle "+"/"-" sign next to list name. click "+" to show all items on the list. click "-" to collapse the list.
 		self.toggleList = function() {
-			$('#loc_list').toggleClass("loc-list");
-			$('#plus').toggleClass("hidden");
-			$('#minus').toggleClass("hidden");
+			$('#loc_list').toggleClass('loc-list');
+			$('#plus').toggleClass('hidden');
+			$('#minus').toggleClass('hidden');
 		};
 
 		//User clicks the hamburger menu to show category list. Only show up when screen is less than 500px
 		self.showList = function() {
-			$("#selected-list").toggleClass("open");
+			$('#selected-list').toggleClass('open');
 		};
 
 		//User clicks anywhere around the navigation menu to close the category list
 		self.closeList = function() {
-			$("#selected-list").removeClass("open");
+			$('#selected-list').removeClass('open');
 		};
 
 		//Select the text in search box when user clicks inside box for easy deletion
@@ -474,7 +473,7 @@ $(function() {
 	if (MapView.initMap()) {
 		var viewModel = new ViewModel();
 		ko.applyBindings(viewModel);
-		window.addEventListener("resize", function() {
+		window.addEventListener('resize', function() {
 			map.fitBounds(bounds);
 		});
 	}
