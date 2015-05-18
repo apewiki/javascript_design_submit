@@ -24,3 +24,9 @@ Known issues and planned improvements:
 7. I did not use CORS as I did not come across the need to enable CORS request in this simple app. I am not sure if I missed anything here. I read about CORS and ask the same question on Udacity Forum. The answer I got was that for my case JSONP is the simplest solution. I would like to learn about CORS and see some live examples. I need some hand-help advice here as this concept is completely new to me.
 
 I will attemp to tackle all above mentioned once I have time. Any insights are greatly appreciated!
+
+After first submission:
+Appreciate the detailed comments from project grader. I fixed the following issues based on project feedback:
+1. Only one infowindow opens at any time.
+2. In the original code, there was error handling using setTimeout when google map was first loaded. But I did not implement error handle on google search after the map is loaded. I believe this is implemented now so that when the app is already running and internet is disconnected, there is error message on the page.
+3. I tried to improve code quality based on style guide and ran it through jshint. However, I did not use grunt as I don't quite grasp the process of how to set up grunt. This is something on my to-do-list.
