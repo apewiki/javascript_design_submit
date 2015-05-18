@@ -1,4 +1,4 @@
-html, 
+html,
 body {
 	margin: 0;
 	padding: 0;
@@ -155,7 +155,7 @@ h3 {
 	outline: none;
 	border: 2px solid #999999;
 	border-radius: 5px;
-	background-color: #fb#fb#fb;
+	background-color: #f9f8f8;
 	font-size: 16px;
 	background-image: url("../images/search.png");
 	background-position: 105% 2%;
@@ -180,7 +180,7 @@ h3 {
 }
 
 .dialogBox {
-	font: 30px;
+	font-size: 20px;
 }
 
 .dialogBox span {
