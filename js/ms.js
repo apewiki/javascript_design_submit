@@ -57,7 +57,6 @@ $(function() {
 		},
 
 		showMapErr: function(err) {
-			console.log("Show map error is called!");
 			$('#mapErr').html('Some error occurred on Google search. Please check internet connection. <a href="#">Click for details</a>');
 			$('#mapErrDetails').html(err);
 			$('#mapErr a').click(function() {
@@ -155,7 +154,9 @@ $(function() {
 			if (marker) {
 				markers.push({'name': name, 'marker': marker});
 				MapView.setBounds(marker);
-				//var infowindow = new google.maps.InfoWindow();
+				if (infowindow) {
+					infowindow.setContent('');
+				}
 
 				google.maps.event.addListener(marker, 'mouseup', function(e) {
 					//Stop previous clicked marker from bouncing
