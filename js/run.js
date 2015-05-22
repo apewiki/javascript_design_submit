@@ -19,6 +19,6 @@ var run = function(){
 		$('mapErrDetails').html('');
 		Offline.check();
 	}
-}
+};
 
 setInterval(run, 5000);

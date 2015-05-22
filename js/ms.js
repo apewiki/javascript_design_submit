@@ -112,11 +112,11 @@ $(function() {
 							service.textSearch(request, function(results, status){
 								if (status == google.maps.places.PlacesServiceStatus.OK) {
 									MapView.createMarker(name + ':' + location, results[0]);
-								} else if (status == google.maps.place.PlacesServiceStatus.OVER_QUERY_LIMIT) {
+								} else if (status == google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT) {
 									alert('Sorry, Google query limit is reached. Wait couple seconds and click your selection again!');
 								} else {
 									errMapDetail += status + '; ';
-									alert('An error occurred on google query: ' + errMapDetail);
+									alert('An error occurred on google query on ' + name + ': ' + errMapDetail);
 								}
 								clearTimeout(googleTimeout);
 							});
