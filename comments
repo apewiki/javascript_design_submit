@@ -1,0 +1,86 @@
+A quick, easy way to fix it is by using a library called Offline.js
+
+References https://www.gavick.com/blog/detect-offline-browser http://github.hubspot.com/offline/docs/welcome/ https://github.com/hubspot/offline https://craigshoemaker.github.io/offlinejs-simulate-ui/
+
+You can also try to detect the internet connection loss. This StackOverflow posts may be a good starting references:
+
+https://stackoverflow.com/questions/189430/detect-that-the-internet-connection-is-offline
+
+https://stackoverflow.com/questions/1730692/jquery-ajax-how-to-detect-network-connection-error-when-making-ajax-call
+
+Developer-to-Developer tip: Don't forget that RequireJS or Browserify can help you to make your code more modular. Additionally, you can improve your websites' performance by using CDN vendor packages.
+
+Knockout is mainly used together with PHP and ASP.NET back-ends. It is good to couple knockout with libraries such as RequireJS (http://requirejs.org/) or Browserify (http://browserify.org/) for module loading and dependencies, and CrossroadsJS(https://millermedeiros.github.io/crossroads.js/) or RouterJS (https://github.com/tildeio/router.js/)  for routes in order to provide comparable functionality to other MVVP frameworks such as AngularJS(https://angular.io/) or EmberJS(http://emberjs.com/). You can even get a full-fledged knockout based framework called DurandalJS (http://durandaljs.com/). If you need to deal with multiple ViewModels in your SPA (Single-Page Application), I suggest Angular or Ember. Of course, you have to choose tools that help you to get the work done on time and in full.
+
+------------
+
+Check your JavaScript syntax, especially that all semicolons are correctly positioned
+
+If you want check your code syntax, you can use JSHint (http://jshint.com). Alternatively, you can use JSLint (http://www.jslint.com/). Finally, please make sure your code adheres to the Udacity Frontend Nanodegree Style Guide.
+
+p.s. I prefer JSHint
+
+Additionally, here are some references to JavaScript style and syntax:
+
+http://udacity.github.io/frontend-nanodegree-styleguide/javascript.html http://javascript.crockford.com/code.html https://developer.mozilla.org/en-US/docs/Mozilla/Developer_guide/Coding_Style https://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml
+
+Note: Minifying a file doesn't guarantee that it is lint.
+
+/////
+Developer-to-Developer tip: It is a good practice to include the "use strict;” tag in your function definitions to enable the strict mode (even if the file was provided to you). This helps to write more "secure" codes by preventing things such as marking down a function with bad syntax to execute or loading unused variables.
+
+You can find more information about the strict mode here: http://www.w3schools.com/js/js_strict.asp & https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode
+
+p.s. If you implement the strict mode, please test your code as some functions may required minor adjustments.
+
+/////
+Developer-to-Developer tip (if you’re interested in learning more about Knockout): You can also build a custom binding or use the ko-mapping binding (KO Extensions) to deal with Google Maps logic within the ModelView.
+
+Here are some references:
+
+http://hoonzis.blogspot.de/2012/03/knockoutjs-and-google-maps-binding.html
+http://knockoutjs.com/documentation/custom-bindings.html
+http://knockoutjs.com/documentation/custom-bindings-controlling-descendant-bindings.html
+http://www.codeproject.com/Articles/351298/KnockoutJS-and-Google-Maps-binding
+https://github.com/hoonzis/KoExtensions
+http://testasoftware.com/steve/blog/knockout-binding-handler-for-google-maps/
+
+/////
+Developer-to-Developer tip: Before submitting any project, it is a good practice to pass all your codes (even those that were provided to you) through a JavaScript Code Quality Tool such as JSHist (http://jshint.com), the one I prefer, or JSLint (http://www.jslint.com/). You can use either the online version or npm/bower package, which you can then incorporate into a task of a JavaScript task runner such as gulp (gulpjs.com) or grunt (gruntjs.com).
+
+/////
+Developer-to-Developer tip: If you want to boost your application performance in term of selectors manipulation, I suggest you use VanillaJS (http://vanilla-js.com/ - i.e. plain javascript) rather than jQuery.
+
+/////
+Developer-to-Developer tip: If you want to make your code more modular, you can use libraries such as RequireJS (http://requirejs.org) or Browserify (http://browserify.org/) to manage different files, modules and their respective dependencies. Perhaps with this project, there are not many advantages of using any of these libraries, but, with bigger and more complex ones, it is another story!
+
+Some references if you're interested in exploring this option for future projects!
+https://egghead.io/lessons/requirejs-introduction-to-requirejs
+http://www.ringabell.org/en/un-simple-guide-pour-debuter-avec-requirejs/
+http://requirejs.org/docs/start.html#examples
+
+http://tutorialzine.com/2014/02/writing-modular-javascript-browserify/
+http://benclinkinbeard.com/posts/how-browserify-works/
+http://browserify.org/articles.html
+https://medium.com/@gregbabula/knockout-browserify-base-app-mvvm-with-an-event-layer-7b0996eb4d0a
+
+p.s. Browserify is my favorite and I always recommend it!
+
+/////
+The Udacity Frontend Nanodegree Style Guide recommends using Shorthand properties in all possible places with properties such as margin, border, padding, background or font. (See: CSS Style Rules - Shorthand Properties.)
+
+References:
+https://udacity.github.io/frontend-nanodegree-styleguide/
+https://developer.mozilla.org/en-US/docs/Web/CSS/Shorthand_properties (Examples)
+
+The Udacity Frontend Nanodegree Style Guide recommends using lowercase letters for selectors, properties and property values (with the exception of strings) should be lowercase, including letters in hexadecimal color values. For example #f06c13 instead of #F06C13 and #ccc rather than #CCC. (See: CSS - General Formatting Rules-Capitalization)
+
+Reference
+https://udacity.github.io/frontend-nanodegree-styleguide/
+
+The Udacity Frontend Nanodegree Style Guide states that it is considered a bad practice to use IDs in your CSS files. There are no situations where IDs provide a benefit over classes. If you need to use a unique name for an element, use a class. (The only benefit IDs provide is speed, and is only beneficial on pages with thousands of similar elements.)
+
+Developer-to-Developer tip: Apart from pixels (px), you can also use other units of lengths to make your website more responsive. These units are em and rem. You can find more information here: https://www.futurehosting.com/blog/web-design-basics-rem-vs-em-vs-px-sizing-elements-in-css/
+
+This information is to expose you to different concepts as well as expand your curiosity about web development! :-)
+
